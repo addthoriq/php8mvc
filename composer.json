@@ -1,0 +1,19 @@
+{
+    "name": "kang/phpmvc",
+    "description": "belajar php mvc",
+    "type": "project",
+    "authors": [
+        {
+            "name": "addthoriq",
+            "email": "alvarro.thoriq@gmail.com"
+        }
+    ],
+    "require": {
+      "php" : ">=8"
+    },
+    "autoload": {
+      "psr-4": {
+        "Kang\\Phpmvc\\": "app"
+      }
+    }
+}
