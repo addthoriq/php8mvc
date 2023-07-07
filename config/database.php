@@ -4,14 +4,14 @@ function getDatabaseConfig(): array {
   return [
     "database" => [
       "test" => [
-        "url" => "postgresql://localhost:5432/phpmvc_test",
+        "url" => "pgsql:host=localhost;port=5432;dbname=phpmvc_test",
         "username" => "postgres",
-        "password" => ""
+        "password" => null
       ],
       "prod" => [
-        "url" => "postgresql://localhost:5432/phpmvc",
+        "url" => "pgsql:host=localhost;port=5432;dbname=phpmvc",
         "username" => "postgres",
-        "password" => ""
+        "password" => null
       ]
     ]
   ];
