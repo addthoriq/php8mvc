@@ -15,5 +15,8 @@ Router::add('GET', '/', HomeController::class, 'index', []);
 // Auth Controller
 Router::add('GET', '/register', UserController::class, 'register', []);
 Router::add('POST', '/register', UserController::class, 'postRegister', []);
+Router::add('GET', '/login', UserController::class, 'login', []);
+Router::add('POST', '/login', UserController::class, 'postLogin', []);
+
 
 Router::run();

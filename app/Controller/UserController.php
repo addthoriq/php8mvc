@@ -2,9 +2,11 @@
 
 namespace Kang\Phpmvc\Controller;
 
+use Exception;
 use Kang\Phpmvc\App\View;
 use Kang\Phpmvc\Config\Database;
 use Kang\Phpmvc\Exception\ValidationException;
+use Kang\Phpmvc\Model\UserLoginRequest;
 use Kang\Phpmvc\Model\UserRegisterRequest;
 use Kang\Phpmvc\Repository\UserRepository;
 use Kang\Phpmvc\Service\UserService;
@@ -36,6 +38,28 @@ class UserController
     } catch (ValidationException $e) {
       View::render('User/register', [
         'title' => 'Register new User',
+        'error' => $e->getMessage()
+      ]); 
+    }
+  }
+
+  public function login() {
+    View::render('User/login', [
+      'title' => 'Login user'
+    ]);
+  }
+
+  public function postLogin() {
+    $request = new UserLoginRequest();
+    $request->id = $_POST['id'];
+    $request->password = $_POST['password'];
+
+    try {
+      $this->userService->login($request);
+      View::redirect('/');
+    } catch (ValidationException $e) {
+      View::render('User/login', [
+        'title' => 'Login user',
         'error' => $e->getMessage()
       ]); 
     }
