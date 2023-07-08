@@ -8,17 +8,23 @@ use Kang\Phpmvc\Config\Database;
 use Kang\Phpmvc\Exception\ValidationException;
 use Kang\Phpmvc\Model\UserLoginRequest;
 use Kang\Phpmvc\Model\UserRegisterRequest;
+use Kang\Phpmvc\Repository\SessionRepository;
 use Kang\Phpmvc\Repository\UserRepository;
+use Kang\Phpmvc\Service\SessionService;
 use Kang\Phpmvc\Service\UserService;
 
 class UserController
 {
   private UserService $userService;
+  private SessionService $sessionService;
 
   public function __construct() {
     $connection = Database::getConnection();
     $userRepository = new UserRepository($connection);
     $this->userService = new UserService($userRepository);
+
+    $sessionRepository = new SessionRepository($connection);
+    $this->sessionService = new SessionService($sessionRepository, $userRepository);
   }
 
   public function register() {
@@ -55,7 +61,8 @@ class UserController
     $request->password = $_POST['password'];
 
     try {
-      $this->userService->login($request);
+      $response = $this->userService->login($request);
+      $this->sessionService->create($response->user->id);
       View::redirect('/');
     } catch (ValidationException $e) {
       View::render('User/login', [
