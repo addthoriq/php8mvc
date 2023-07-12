@@ -2,11 +2,14 @@
 
 namespace Kang\Phpmvc\Service;
 
+use Exception;
 use Kang\Phpmvc\Config\Database;
 use Kang\Phpmvc\Domain\User;
 use Kang\Phpmvc\Exception\ValidationException;
 use Kang\Phpmvc\Model\UserLoginRequest;
 use Kang\Phpmvc\Model\UserLoginResponse;
+use Kang\Phpmvc\Model\UserProfileUpdateRequest;
+use Kang\Phpmvc\Model\UserProfileUpdateResponse;
 use Kang\Phpmvc\Model\UserRegisterRequest;
 use Kang\Phpmvc\Model\UserRegisterResponse;
 use Kang\Phpmvc\Repository\UserRepository;
@@ -69,6 +72,35 @@ class UserService {
   private function validateUserLoginRequest(UserLoginRequest $request){
     if ($request->id == null  || $request->password == null || trim($request->id) == "" || trim($request->password) == "") {
       throw new ValidationException("Id and Password can not blank");
+    }
+  }
+
+  private function updateProfile(UserProfileUpdateRequest $request): UserProfileUpdateResponse {
+    $this->validateUserProfileUpdateRequest($request);
+    try {
+      Database::getConnection();
+
+      $user = $this->userRepository->findById($request->id);
+      if ($user == null) {
+        throw new ValidationException("User is not found");
+      }
+
+      $user->name = $request->name;
+      $this->userRepository->save($user);
+
+      Database::commitTransaction();
+      $response = new UserProfileUpdateResponse();
+      $response->user = $user;
+      return $response;
+    } catch (Exception $e) {
+      Database::rollbackTransaction();
+      throw $e;
+    }
+  }
+
+  private function validateUserProfileUpdateRequest(UserProfileUpdateRequest $request) {
+    if ($request->id == null  || $request->name == null || trim($request->id) == "" || trim($request->name) == "") {
+      throw new ValidationException("Id and Name can not blank");
     }
   }
 }
