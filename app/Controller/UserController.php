@@ -6,6 +6,7 @@ use Kang\Phpmvc\App\View;
 use Kang\Phpmvc\Config\Database;
 use Kang\Phpmvc\Exception\ValidationException;
 use Kang\Phpmvc\Model\UserLoginRequest;
+use Kang\Phpmvc\Model\UserPasswordUpdateRequest;
 use Kang\Phpmvc\Model\UserProfileUpdateRequest;
 use Kang\Phpmvc\Model\UserRegisterRequest;
 use Kang\Phpmvc\Repository\SessionRepository;
@@ -106,6 +107,37 @@ class UserController
         "name" => $user->name
       ]
     ]); 
+    }
+  }
+
+  public function updatePassword() {
+    $user = $this->sessionService->current();
+    View::render('/password', [
+      "title" => "Update user password",
+      "user" => [
+        "id" => $user->id
+      ]
+    ]);
+  }
+
+  public function postUpdatePassword() {
+    $user = $this->sessionService->current();
+    $request = new UserPasswordUpdateRequest();
+    $request->id = $user->id;
+    $request->oldPassword = $_POST['oldPassword'];
+    $request->newPassword = $_POST['newPassword'];
+
+    try {
+      $this->userService->updatePassword($request);
+      View::redirect('/');
+    } catch (ValidationException $e) {
+      View::render('/password', [
+        "title" => "Update user Password",
+        "error" => $e->getMessage(),
+        "user" => [
+          "id" => $user->id
+        ]
+      ]);
     }
   }
 }
