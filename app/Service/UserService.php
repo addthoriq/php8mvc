@@ -8,6 +8,8 @@ use Kang\Phpmvc\Domain\User;
 use Kang\Phpmvc\Exception\ValidationException;
 use Kang\Phpmvc\Model\UserLoginRequest;
 use Kang\Phpmvc\Model\UserLoginResponse;
+use Kang\Phpmvc\Model\UserPasswordUpdateRequest;
+use Kang\Phpmvc\Model\UserPasswordUpdateResponse;
 use Kang\Phpmvc\Model\UserProfileUpdateRequest;
 use Kang\Phpmvc\Model\UserProfileUpdateResponse;
 use Kang\Phpmvc\Model\UserRegisterRequest;
@@ -101,6 +103,39 @@ class UserService {
   private function validateUserProfileUpdateRequest(UserProfileUpdateRequest $request) {
     if ($request->id == null  || $request->name == null || trim($request->id) == "" || trim($request->name) == "") {
       throw new ValidationException("Id and Name can not blank");
+    }
+  }
+
+  public function updatePassword(UserPasswordUpdateRequest $request): UserPasswordUpdateResponse {
+    $this->validateUserPasswordUpdateRequest($request);
+    try {
+      Database::beginTransaction();
+
+      $user = $this->userRepository->findById($request->id);
+      if ($user == null) {
+        throw new ValidationException("User is not found");
+      }
+      if (!password_verify($request->oldPassword, $user->password)) {
+        throw new ValidationException("Old password is wrong");
+      }
+      $user->password = password_hash($request->newPassword, PASSWORD_BCRYPT);
+      $this->userRepository->update($user);
+
+      Database::commitTransaction();
+
+      $response = new UserPasswordUpdateResponse();
+      $response->user = $user;
+
+      return $response;
+    } catch (Exception $e) {
+      Database::rollbackTransaction();
+      throw $e;
+    }
+  }
+
+  public function validateUserPasswordUpdateRequest(UserPasswordUpdateRequest $request) {
+    if ($request->id == null || $request->oldPassword == null || $request->newPassword == null || trim($request->id) || trim($request->oldPassword) || trim($request->newPassword)) {
+      throw new ValidationException("Id, Old Password, New Password can not blank");
     }
   }
 }
