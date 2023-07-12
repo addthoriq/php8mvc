@@ -2,11 +2,11 @@
 
 namespace Kang\Phpmvc\Controller;
 
-use Exception;
 use Kang\Phpmvc\App\View;
 use Kang\Phpmvc\Config\Database;
 use Kang\Phpmvc\Exception\ValidationException;
 use Kang\Phpmvc\Model\UserLoginRequest;
+use Kang\Phpmvc\Model\UserProfileUpdateRequest;
 use Kang\Phpmvc\Model\UserRegisterRequest;
 use Kang\Phpmvc\Repository\SessionRepository;
 use Kang\Phpmvc\Repository\UserRepository;
@@ -75,5 +75,37 @@ class UserController
   public function logout() {
     $this->sessionService->destroy();
     View::redirect("/");
+  }
+
+  public function updateProfile() {
+    $user = $this->sessionService->current();
+    View::render('User/profile', [
+      "title" => "Update user profile",
+      "user" => [
+        "id" => $user->id,
+        "name" => $user->name
+      ]
+    ]);
+  }
+
+  public function postUpdateProfile() {
+    $user = $this->sessionService->current();
+    $request = new UserProfileUpdateRequest();
+    $request->id = $user->id;
+    $request->name = $_POST['name'];
+
+    try {
+      $this->userService->updateProfile($request);
+      View::redirect('/');
+    } catch (ValidationException $e) {
+     View::render('User/profile', [
+      "title" => "Update user profile",
+      "error" => $e->getMessage(),
+      "user" => [
+        "id" => $user->id,
+        "name" => $user->name
+      ]
+    ]); 
+    }
   }
 }

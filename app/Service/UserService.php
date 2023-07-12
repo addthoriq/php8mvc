@@ -75,10 +75,10 @@ class UserService {
     }
   }
 
-  private function updateProfile(UserProfileUpdateRequest $request): UserProfileUpdateResponse {
+  public function updateProfile(UserProfileUpdateRequest $request): UserProfileUpdateResponse {
     $this->validateUserProfileUpdateRequest($request);
     try {
-      Database::getConnection();
+      Database::beginTransaction();
 
       $user = $this->userRepository->findById($request->id);
       if ($user == null) {
@@ -86,7 +86,7 @@ class UserService {
       }
 
       $user->name = $request->name;
-      $this->userRepository->save($user);
+      $this->userRepository->update($user);
 
       Database::commitTransaction();
       $response = new UserProfileUpdateResponse();
