@@ -112,7 +112,7 @@ class UserController
 
   public function updatePassword() {
     $user = $this->sessionService->current();
-    View::render('/password', [
+    View::render('User/password', [
       "title" => "Update user password",
       "user" => [
         "id" => $user->id
@@ -131,7 +131,7 @@ class UserController
       $this->userService->updatePassword($request);
       View::redirect('/');
     } catch (ValidationException $e) {
-      View::render('/password', [
+      View::render('User/password', [
         "title" => "Update user Password",
         "error" => $e->getMessage(),
         "user" => [

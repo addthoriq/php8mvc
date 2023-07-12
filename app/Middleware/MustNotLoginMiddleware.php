@@ -20,7 +20,6 @@ class MustNotLoginMiddleware implements Middleware{
   public function before(): void
   {
     $user = $this->sessionService->current();
-    var_dump($user);
     if ($user != null) {
       View::redirect('/');
     } 
